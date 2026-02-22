@@ -1,5 +1,4 @@
 <?php
-// Helper function to check if current path matches
 function isActive($path) {
     $current = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     return strpos($current, $path) === 0;
@@ -38,6 +37,6 @@ function isActive($path) {
     </nav>
     
     <div class="p-4 border-t border-gray-700 text-xs text-gray-400">
-        <p>© 2026 Candidacy System</p>
+        <p>@ Hello World</p>
     </div>
 </div>

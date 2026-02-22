@@ -49,7 +49,7 @@
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">About</h3>
             <p class="text-gray-600 text-sm leading-relaxed">
-                Manage candidates and political parties for the candidacy system. Create, edit, and delete candidate profiles with pictures, assign parties, and manage party information.
+               Hi hello
             </p>
         </div>
     </div>
