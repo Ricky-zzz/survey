@@ -183,7 +183,6 @@ class Survey
         $baseUrl = rtrim($config['app_url'], '/');
         $surveyUrl = "{$baseUrl}/surveys/{$surveyId}/take";
 
-        // For private surveys, include passkey in URL
         if (!$survey['is_public'] && !empty($survey['passkey'])) {
             $surveyUrl .= "?key=" . urlencode($survey['passkey']);
         }
@@ -195,9 +194,9 @@ class Survey
      * Get shareable link info for admin display
      * @param int $surveyId
      * @param array $config App configuration
-     * @return array
+     * @return array|null
      */
-    public function getShareableInfo($surveyId, $config)
+    public function getShareableInfo($surveyId, $config): ?array
     {
         $survey = $this->getById($surveyId);
         if (!$survey) {
