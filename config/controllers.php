@@ -22,7 +22,8 @@ $container->set('SurveyController', function ($c) {
     return new SurveyController(
         $c->get('SurveyModel'),
         $c->get('SectionModel'),
-        $c->get('AdminModel')
+        $c->get('AdminModel'),
+        $c->get('config')
     );
 });
 

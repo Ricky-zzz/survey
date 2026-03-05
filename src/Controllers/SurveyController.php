@@ -13,12 +13,14 @@ class SurveyController
     private $surveyModel;
     private $sectionModel;
     private $adminModel;
+    private $config;
 
-    public function __construct(Survey $surveyModel, Section $sectionModel, Admin $adminModel)
+    public function __construct(Survey $surveyModel, Section $sectionModel, Admin $adminModel, $config)
     {
         $this->surveyModel = $surveyModel;
         $this->sectionModel = $sectionModel;
         $this->adminModel = $adminModel;
+        $this->config = $config;
     }
 
     /**
@@ -203,6 +205,36 @@ class SurveyController
 
         return $this->render($response, 'public/index', [
             'surveys' => $surveys
+        ]);
+    }
+
+    /**
+     * GET /admin/surveys/{id}/share
+     * Get shareable link for a survey
+     */
+    public function shareLink(Request $request, Response $response, $args)
+    {
+        $surveyId = $args['id'];
+        
+        $shareInfo = $this->surveyModel->getShareableInfo($surveyId, $this->config);
+        
+        if (!$shareInfo) {
+            return $this->renderNotFound($response);
+        }
+
+        // Return JSON response for AJAX calls
+        if ($request->hasHeader('X-Requested-With') && 
+            $request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest') {
+            $response->getBody()->write(json_encode([
+                'status' => 'success',
+                'data' => $shareInfo
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        // For non-AJAX calls, return a simple share page
+        return $this->render($response, 'admin/share-link', [
+            'shareInfo' => $shareInfo
         ]);
     }
 

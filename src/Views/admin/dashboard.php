@@ -82,6 +82,9 @@
                         <a :href="`/admin/surveys/${survey.id}/edit`" class="text-gray-600 hover:text-gray-700 text-sm font-medium px-3 py-2">
                             Edit
                         </a>
+                        <a :href="`/admin/surveys/${survey.id}/share`" class="text-green-600 hover:text-green-700 text-sm font-medium px-3 py-2">
+                            Share
+                        </a>
                         <button 
                             @click="deleteSurvey(survey.id)"
                             class="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-2"

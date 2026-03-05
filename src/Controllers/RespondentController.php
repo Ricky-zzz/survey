@@ -48,7 +48,10 @@ class RespondentController
         // Check if survey is private and validate passkey
         $showPasskeyForm = false;
         if (!$survey['is_public']) {
-            $passkey = $request->getParsedBody()['passkey'] ?? null;
+            // Check passkey from URL params first, then POST data
+            $queryParams = $request->getQueryParams();
+            $postData = $request->getParsedBody() ?? [];
+            $passkey = $queryParams['key'] ?? $postData['passkey'] ?? null;
             
             if (!$this->surveyModel->verifyPasskey($surveyId, $passkey)) {
                 $showPasskeyForm = true;
@@ -62,7 +65,8 @@ class RespondentController
             'survey' => $survey,
             'sections' => $sections,
             'showPasskeyForm' => $showPasskeyForm,
-            'error' => $showPasskeyForm && isset($request->getParsedBody()['passkey']) ? 'Invalid passkey' : null
+            'error' => $showPasskeyForm && (isset($postData['passkey']) || isset($queryParams['key'])) 
+                ? 'Invalid passkey' : null
         ]);
     }
 

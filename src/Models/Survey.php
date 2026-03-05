@@ -166,4 +166,53 @@ class Survey
     {
         return $this->db->count('respondents', ['survey_id' => $surveyId, 'submitted_at[!]' => null]);
     }
+
+    /**
+     * Generate a shareable link for the survey
+     * @param int $surveyId
+     * @param array $config App configuration
+     * @return string
+     */
+    public function generateShareableLink($surveyId, $config)
+    {
+        $survey = $this->getById($surveyId);
+        if (!$survey) {
+            return null;
+        }
+
+        $baseUrl = rtrim($config['app_url'], '/');
+        $surveyUrl = "{$baseUrl}/surveys/{$surveyId}/take";
+
+        // For private surveys, include passkey in URL
+        if (!$survey['is_public'] && !empty($survey['passkey'])) {
+            $surveyUrl .= "?key=" . urlencode($survey['passkey']);
+        }
+
+        return $surveyUrl;
+    }
+
+    /**
+     * Get shareable link info for admin display
+     * @param int $surveyId
+     * @param array $config App configuration
+     * @return array
+     */
+    public function getShareableInfo($surveyId, $config)
+    {
+        $survey = $this->getById($surveyId);
+        if (!$survey) {
+            return null;
+        }
+
+        return [
+            'id' => $survey['id'],
+            'name' => $survey['name'],
+            'is_public' => $survey['is_public'],
+            'has_passkey' => !empty($survey['passkey']),
+            'shareable_link' => $this->generateShareableLink($surveyId, $config),
+            'instructions' => $survey['is_public'] 
+                ? 'This is a public survey. Anyone with this link can access it.'
+                : 'This is a private survey. The link includes the passkey for direct access.'
+        ];
+    }
 }

@@ -1,170 +1,269 @@
-# Candidacy Management System
+# Survey Maker System
 
-A clean, minimalist candidate and political party management system built with Slim Framework, Medoo, and Tailwind CSS.
+A comprehensive survey creation and management platform built with Slim Framework, Medoo, and modern web technologies.
 
 ## Features
 
-- **Candidate Management**: Create, read, update, delete candidates with profile pictures
-- **Party Management**: Create, read, update, delete political parties
-- **File Upload**: Upload and manage candidate pictures locally
-- **Clean UI**: Minimalist monochrome design using Tailwind CSS
-- **Responsive Design**: Works on desktop and mobile devices
+### 📊 **Survey Management**
+- Create unlimited surveys with sections and questions
+- Support for multiple question types:
+  - Text input
+  - Yes/No questions  
+  - Scale (1-5 rating)
+  - Multiple choice (with custom options)
+  - File upload (PDF only)
+- Private surveys with passkey protection
+- Public surveys accessible to everyone
+
+### 🔗 **Link Sharing**
+- **Environment-aware URLs**: Automatically uses `app_url` from config
+- **Public survey links**: Direct access for public surveys
+- **Private survey links**: Includes passkey in URL for seamless access
+- **Secure sharing**: Copy shareable links from admin dashboard
+- **Cross-environment support**: Works with localhost, survey.local, or any domain
+
+### 👥 **Respondent Experience**
+- Clean, Google Forms-inspired interface
+- Progressive form with sections
+- File upload with PDF validation (5MB limit)
+- Duplicate submissions allowed per email
+- Thank you page after submission
+
+### 🎛️ **Admin Dashboard**
+- Session-based authentication with middleware protection
+- Real-time survey creation with Alpine.js
+- AJAX-powered section and question management
+- Response analytics and reporting
+- Respondent management and individual response viewing
+- Survey sharing interface with copy-to-clipboard
+
+### 🔒 **Security**
+- Password hashing with bcrypt
+- Session-based authentication
+- Middleware protection for admin routes
+- File upload validation (PDF only)
+- CSRF protection ready
 
 ## Tech Stack
 
-- **Framework**: Slim Framework 4
+- **Framework**: Slim Framework 4 with PSR-7
 - **Database**: MySQL with Medoo query builder
-- **Frontend**: Tailwind CSS, Alpine.js
-- **PHP**: 7.4+
+- **Frontend**: Tailwind CSS, Alpine.js 3.x
+- **Authentication**: Session-based with middleware
+- **File Storage**: Local storage with organized structure
+- **PHP**: 7.4+ with type hints and PHPDoc
 
 ## Project Structure
 
 ```
-candidate/
+survey/
 ├── public/
-│   ├── index.php          # Entry point
-│   ├── .htaccess          # URL rewriting
-│   └── uploads/           # Uploaded pictures
+│   ├── index.php          # Application entry point
+│   └── uploads/           # Survey file uploads
+│       └── survey_{id}/
+│           └── respondent_{id}/
 ├── src/
 │   ├── Controllers/       # Request handlers
-│   │   ├── HomeController.php
-│   │   ├── CandidateController.php
-│   │   └── PartyController.php
+│   │   ├── AdminController.php
+│   │   ├── SurveyController.php
+│   │   ├── SectionController.php
+│   │   ├── QuestionController.php
+│   │   ├── RespondentController.php
+│   │   └── ResponseController.php
+│   ├── Middleware/        # Authentication & security
+│   │   └── AdminAuthMiddleware.php
 │   ├── Models/            # Database models
-│   │   ├── Candidate.php
-│   │   └── Party.php
+│   │   ├── Survey.php
+│   │   ├── Section.php
+│   │   ├── Question.php
+│   │   ├── QuestionOption.php
+│   │   ├── Respondent.php
+│   │   ├── Response.php
+│   │   ├── File.php
+│   │   └── Admin.php
+│   ├── Services/          # Business services
+│   │   └── FileUploader.php
 │   └── Views/             # HTML templates
-│       ├── layout.php
-│       ├── home.php
-│       ├── candidates/
-│       └── parties/
+│       ├── layout/        # Shared templates
+│       ├── admin/         # Admin interface
+│       ├── public/        # Public survey listing
+│       └── respondent/    # Survey form interface
 ├── config/
-│   ├── database.php       # MySQL configuration
-│   └── config.php         # App settings
-├── vendor/                # Composer packages
+│   ├── database.php       # Database connection
+│   ├── config.php         # App configuration
+│   ├── routes.php         # Route definitions
+│   ├── controllers.php    # DI container setup
+│   ├── models.php         # Model bindings
+│   └── services.php       # Service bindings
+├── vendor/                # Composer dependencies
 ├── composer.json
-└── candidacy.sql          # Database schema
+└── survey.sql            # Database schema with sample data
 ```
 
 ## Installation
 
 ### Prerequisites
-- PHP 7.4 or higher
-- MySQL 8.0+
+- PHP 7.4+ with PDO MySQL extension
+- MySQL 8.0+ or equivalent
 - Composer
-- Laragon or similar local server
+- Web server (Apache/Nginx/built-in PHP server)
 
-### Steps
+### Quick Setup
 
-1. **Navigate to project directory**
-   ```bash
-   cd c:\laragon\www\candidate
-   ```
-
-2. **Install dependencies** (already done)
+1. **Clone and install dependencies**
    ```bash
    composer install
    ```
 
-3. **Create MySQL database**
-   - Use HeidiSQL or MySQL CLI to import `candidacy.sql`
+2. **Import database schema**
    ```bash
-   mysql -u root < candidacy.sql
+   mysql -u root < survey.sql
    ```
 
-4. **Configure database** (if needed)
-   - Edit `config/database.php` with your MySQL credentials
-   - Default: host=localhost, user=root, password=''
+3. **Configure application**
+   - Edit `config/database.php` for your MySQL settings
+   - Update `config/config.php` with your environment settings:
+   ```php
+   'app_url' => 'http://localhost:8000',        // For localhost
+   // OR
+   'app_url' => 'http://survey.local',          // For virtual hosts
+   ```
 
-5. **Start local server**
+4. **Start server**
    ```bash
    php -S localhost:8000 -t public/
    ```
 
-6. **Access application**
-   - Open http://localhost:8000 in your browser
-
-## Usage
-
-### Home Page
-- Dashboard with quick stats and navigation
-- Links to manage candidates and parties
-
-### Candidates
-- **List**: View all registered candidates with pictures and parties
-- **Add**: Create new candidate with code, name, gender, party, and picture
-- **Edit**: Update candidate information or picture
-- **Delete**: Remove candidate and associated picture
-
-### Parties
-- **List**: View all political parties
-- **Add**: Create new party
-- **Edit**: Update party name
-- **Delete**: Remove party (referenced candidates remain)
-
-## Key Features
-
-### File Upload
-- Supported formats: JPG, PNG, GIF
-- Max file size: 2MB
-- Files stored in `/public/uploads/`
-- Old pictures automatically deleted on update
-
-### Database
-- Two main tables: `candidate`, `party`
-- Foreign key relationship: `candidate.party_id` → `party.id`
-- Auto-delete candidates when party is deleted (CASCADE)
-
-### Design
-- **Colors**: Monochrome (blacks, grays, whites)
-- **Framework**: Tailwind CSS utilities
-- **Icons**: Inline SVGs
-- **Responsive**: Adapts to all screen sizes
-
-## Routes
-
-```
-GET  /                      # Home page
-GET  /candidates            # List candidates
-GET  /candidates/create     # Add candidate form
-POST /candidates            # Store new candidate
-GET  /candidates/{id}/edit  # Edit candidate form
-POST /candidates/{id}       # Update candidate
-POST /candidates/{id}/delete# Delete candidate
-
-GET  /parties               # List parties
-GET  /parties/create        # Add party form
-POST /parties               # Store new party
-GET  /parties/{id}/edit     # Edit party form
-POST /parties/{id}          # Update party
-POST /parties/{id}/delete   # Delete party
-```
+5. **Access the system**
+   - **Public surveys**: http://localhost:8000  
+   - **Admin login**: http://localhost:8000/admin/login
+   - **Credentials**: admin / admin123
 
 ## Configuration
 
-Edit `config/config.php` to customize:
-- App name and URL
-- Upload file size limits (default 2MB)
-- Allowed file extensions
-- Items per page
+### App URL Setup
+The `app_url` setting in `config/config.php` is crucial for proper link sharing:
 
-## Notes
+```php
+// For local development
+'app_url' => 'http://localhost:8000',
 
-- Middle name is optional for candidates
-- Pictures are stored in local filesystem, not database
-- Use `public/index.php` to route all requests
-- Slim Framework handles routing and dependency injection
-- Medoo provides a clean database interface
+// For virtual host (hosts file setup)
+'app_url' => 'http://survey.local',
 
-## Future Enhancements
+// For production
+'app_url' => 'https://surveys.yourdomain.com',
+```
 
-- Pagination for candidate lists
-- Advanced search and filtering
-- Candidate approval workflow
-- Batch image processing
-- Email notifications
-- User authentication
+### File Upload Settings
+```php
+'upload_path' => __DIR__ . '/../public/uploads',
+'upload_max_size' => 5242880, // 5MB
+'allowed_extensions' => ['pdf'],
+```
 
-## License
+## Usage Guide
 
-Open source
+### 🔗 **Link Sharing**
+
+#### For Public Surveys
+1. Go to Admin Dashboard → Surveys
+2. Click "Share" next to any public survey
+3. Copy the generated link: `http://your-domain/surveys/1/take`
+4. Share with anyone - no passkey required
+
+#### For Private Surveys  
+1. Create a survey and set it as **Private** with a passkey
+2. Click "Share" to get a pre-authenticated link
+3. Link includes passkey: `http://your-domain/surveys/1/take?key=your-passkey`
+4. Recipients can access directly without entering passkey
+
+#### Environment Changes
+When moving between environments (localhost → survey.local → production):
+1. Update `app_url` in `config/config.php`
+2. Re-generate shareable links from admin dashboard
+3. All new links will use the updated URL automatically
+
+### 👥 **Survey Creation Workflow**
+
+1. **Login to admin**: `/admin/login` (admin / admin123)
+2. **Create survey**: Add title, description, set public/private
+3. **Add sections**: Organize questions into logical groups
+4. **Add questions**: Choose from 5 question types
+5. **Configure options**: For multiple choice questions
+6. **Test survey**: Use the "Test Link" button
+7. **Share survey**: Copy shareable link for distribution
+
+### 📊 **Response Management**
+
+- **View results**: Click "Results" for analytics dashboard
+- **Individual responses**: Click "Respondents" to see detailed submissions
+- **File downloads**: Access uploaded PDFs from response details
+- **Export options**: Ready for CSV/Excel export integration
+
+## Database Schema
+
+8 interconnected tables:
+- `admins` - Admin user accounts
+- `surveys` - Survey metadata and settings
+- `sections` - Survey sections for organization  
+- `questions` - Individual questions with types
+- `question_options` - Multiple choice options
+- `respondents` - Response submissions
+- `responses` - Individual question answers
+- `files` - Uploaded PDF files
+
+## Security Features
+
+- **Session-based authentication** with middleware protection
+- **Password hashing** using bcrypt
+- **File validation** (PDF only, 5MB limit)
+- **CSRF protection** ready for implementation
+- **Private survey passkeys** for access control
+- **Admin route protection** via middleware
+
+## Routes
+
+### Public Routes
+```
+GET  /                           # Public survey listing
+GET  /surveys/{id}/take          # Survey form (supports ?key= for private)
+POST /surveys/{id}/submit        # Submit survey response
+GET  /surveys/{id}/thank-you     # Thank you page
+```
+
+### Admin Routes (Protected by Middleware)
+```
+GET  /admin/login               # Admin login form
+POST /admin/login               # Process login
+GET  /admin/logout              # Logout
+GET  /admin                     # Dashboard redirect
+GET  /admin/surveys             # Survey management
+GET  /admin/surveys/create      # Create survey form
+GET  /admin/surveys/{id}/edit   # Edit survey
+GET  /admin/surveys/{id}/share  # Generate shareable link
+GET  /admin/surveys/{id}/results     # Analytics dashboard
+GET  /admin/surveys/{id}/respondents # Response management
+```
+
+## Customization
+
+### Adding Question Types
+1. Update `Question` model with new type
+2. Add form input in `admin/survey-form.php`
+3. Handle rendering in `respondent/survey.php`
+4. Process submission in `RespondentController`
+
+### Styling
+- Built with Tailwind CSS
+- Modify templates in `src/Views/`
+- Update Alpine.js components in `src/Views/admin/js/`
+
+### File Types
+- Update `FileUploader` service
+- Modify `allowed_extensions` in config
+- Update MIME type validation
+
+---
+
+**🎯 Ready to create surveys!** The system handles everything from simple polls to complex multi-section surveys with file uploads and private access control.

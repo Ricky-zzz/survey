@@ -27,6 +27,7 @@ $app->group('/admin', function($group) {
     $group->get('/surveys/{id}/edit', 'SurveyController:editForm');
     $group->post('/surveys/{id}', 'SurveyController:update');
     $group->post('/surveys/{id}/delete', 'SurveyController:delete');
+    $group->get('/surveys/{id}/share', 'SurveyController:shareLink');
     
     // Results & Respondents
     $group->get('/surveys/{id}/results', 'ResponseController:viewResults');
