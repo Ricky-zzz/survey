@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $title ?? 'Survey Maker'; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/survey-form.js"></script>
+    <script>
+        // This will be set in the view before Alpine initializes
+        window.surveyData = null;
+    </script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">

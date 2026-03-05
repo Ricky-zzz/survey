@@ -205,8 +205,9 @@ INSERT INTO `questions` (`section_id`, `question_text`, `type`, `required`, `ord
 (3, 'Price Value', 'scale', true, 4),
 (3, 'Timeliness of Delivery', 'scale', true, 5);
 
--- Update matrix questions with group ID
-UPDATE `questions` SET `matrix_group_id` = 'service-quality' WHERE `id` IN (13, 14, 15, 16, 17);
+-- Update matrix questions with group ID (Product Quality through Timeliness of Delivery in section 3)
+UPDATE `questions` SET `matrix_group_id` = 'service-quality' 
+WHERE `section_id` = 3 AND `type` = 'scale';
 
 -- Add scale options for single satisfaction question
 INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_sequence`) VALUES 
@@ -216,8 +217,13 @@ INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_se
 (7, 'Satisfied', '4', 4),
 (7, 'Very Satisfied', '5', 5);
 
--- Add scale options for matrix questions (13-17: Product Quality, Customer Service, Communication, Price Value, Timeliness)
+-- Add scale options for matrix questions (12-16: Product Quality, Customer Service, Communication, Price Value, Timeliness)
 INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_sequence`) VALUES 
+(12, 'Strongly Disagree', '1', 1),
+(12, 'Disagree', '2', 2),
+(12, 'Neutral', '3', 3),
+(12, 'Agree', '4', 4),
+(12, 'Strongly Agree', '5', 5),
 (13, 'Strongly Disagree', '1', 1),
 (13, 'Disagree', '2', 2),
 (13, 'Neutral', '3', 3),
@@ -237,12 +243,7 @@ INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_se
 (16, 'Disagree', '2', 2),
 (16, 'Neutral', '3', 3),
 (16, 'Agree', '4', 4),
-(16, 'Strongly Agree', '5', 5),
-(17, 'Strongly Disagree', '1', 1),
-(17, 'Disagree', '2', 2),
-(17, 'Neutral', '3', 3),
-(17, 'Agree', '4', 4),
-(17, 'Strongly Agree', '5', 5);
+(16, 'Strongly Agree', '5', 5);
 
 -- Add department options for multiple choice question
 INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_sequence`) VALUES 

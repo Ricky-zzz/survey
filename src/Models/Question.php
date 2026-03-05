@@ -26,6 +26,7 @@ class Question
             'type',
             'required',
             'allow_multiple_files',
+            'matrix_group_id',
             'order_sequence',
             'created_at',
             'updated_at'
@@ -45,6 +46,7 @@ class Question
             'type',
             'required',
             'allow_multiple_files',
+            'matrix_group_id',
             'order_sequence',
             'created_at'
         ], [
