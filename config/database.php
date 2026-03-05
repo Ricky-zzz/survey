@@ -3,7 +3,7 @@
 return [
     'type' => 'mysql',
     'host' => 'localhost',
-    'database' => 'candidacy',
+    'database' => 'survey',
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8mb4',
