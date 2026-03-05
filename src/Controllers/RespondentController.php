@@ -34,12 +34,12 @@ class RespondentController
 
     /**
      * GET /surveys/{id}/take
-     * Display survey form for respondents
+     * Redirect to first section of survey
      */
     public function takeSurvey(Request $request, Response $response, $args)
     {
         $surveyId = $args['id'];
-        $survey = $this->surveyModel->getWithSections($surveyId);
+        $survey = $this->surveyModel->getById($surveyId);
 
         if (!$survey) {
             return $this->renderNotFound($response);
@@ -61,7 +61,8 @@ class RespondentController
         // Get sections with questions
         $sections = $survey['sections'] ?? [];
 
-        return $this->render($response, 'respondent/survey', [
+        // Render multi-step survey form
+        return $this->render($response, 'respondent/survey-multistep', [
             'survey' => $survey,
             'sections' => $sections,
             'showPasskeyForm' => $showPasskeyForm,
@@ -72,7 +73,7 @@ class RespondentController
 
     /**
      * POST /surveys/{id}/submit
-     * Submit survey responses
+     * Process survey submission (Alpine.js multi-step form)
      */
     public function submitSurvey(Request $request, Response $response, $args)
     {
@@ -82,42 +83,53 @@ class RespondentController
 
         $survey = $this->surveyModel->getById($surveyId);
         if (!$survey) {
-            return $this->jsonResponse($response, [
-                'success' => false,
-                'message' => 'Survey not found'
-            ], 404);
+            return $this->renderNotFound($response);
         }
 
-        try {
-            // Create respondent record
-            $respondentId = $this->respondentModel->create($surveyId);
+        // Extract respondent info
+        $respondentData = [
+            'survey_id' => $surveyId,
+            'first_name' => $data['first_name'] ?? '',
+            'last_name' => $data['last_name'] ?? '',
+            'middle_name' => $data['middle_name'] ?? null,
+            'email' => $data['email'] ?? '',
+            'phone' => $data['phone'] ?? null,
+            'age' => !empty($data['age']) ? (int)$data['age'] : null,
+            'sex' => $data['sex'] ?? null,
+            'submitted_at' => date('Y-m-d H:i:s')
+        ];
 
-            // Store responses (from respondent data and answers)
-            $responses = $data['responses'] ?? [];
-            
-            if (!empty($responses)) {
-                $this->responseModel->createMultiple($respondentId, $responses);
+        $respondentId = $this->respondentModel->create($respondentData);
+
+        if ($respondentId) {
+            // Save responses
+            if (isset($data['responses'])) {
+                foreach ($data['responses'] as $questionId => $answer) {
+                    $responseData = [
+                        'respondent_id' => $respondentId,
+                        'question_id' => $questionId,
+                        'answer_text' => is_array($answer) ? implode(', ', $answer) : $answer,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ];
+                    $this->responseModel->create($responseData);
+                }
             }
 
             // Handle file uploads
-            if (!empty($files)) {
-                $this->handleFileUploads($respondentId, $surveyId, $files);
+            if (!empty($files['files'])) {
+                $this->handleFileUploads($respondentId, $surveyId, $files['files']);
             }
 
-            // Mark respondent as submitted
-            $this->respondentModel->markSubmitted($respondentId);
-
-            return $this->jsonResponse($response, [
-                'success' => true,
-                'message' => 'Survey submitted successfully',
-                'respondentId' => $respondentId
-            ]);
-        } catch (\Exception $e) {
-            return $this->jsonResponse($response, [
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            // Redirect to thank you page
+            return $response
+                ->withHeader('Location', "/surveys/{$surveyId}/thank-you")
+                ->withStatus(302);
         }
+
+        // Error - redirect back to survey
+        return $response
+            ->withHeader('Location', "/surveys/{$surveyId}/take")
+            ->withStatus(302);
     }
 
     /**
@@ -172,44 +184,6 @@ class RespondentController
         }
     }
 
-    /**
-     * Format section data for Alpine.js form
-     */
-    private function formatSectionForForm($section)
-    {
-        return [
-            'id' => $section['id'],
-            'title' => $section['title'],
-            'description' => $section['description'],
-            'is_respondent_info' => $section['is_respondent_info'],
-            'questions' => array_map(fn($q) => $this->formatQuestionForForm($q), $section['questions'] ?? [])
-        ];
-    }
-
-    /**
-     * Format question data for Alpine.js form
-     */
-    private function formatQuestionForForm($question)
-    {
-        $formatted = [
-            'id' => $question['id'],
-            'text' => $question['question_text'],
-            'type' => $question['type'],
-            'required' => $question['required']
-        ];
-
-        // Add options for scale and multiple_choice
-        if (in_array($question['type'], ['scale', 'multiple_choice']) && isset($question['options'])) {
-            $formatted['options'] = array_map(fn($opt) => [
-                'id' => $opt['id'],
-                'text' => $opt['option_text'],
-                'value' => $opt['value']
-            ], $question['options']);
-        }
-
-        return $formatted;
-    }
-
     // Helper methods
     private function render(Response $response, $template, $data = [])
     {
@@ -222,28 +196,10 @@ class RespondentController
         return $response;
     }
 
-    private function renderWithError(Response $response, $template, $data = [])
-    {
-        ob_start();
-        extract($data);
-        include __DIR__ . "/../Views/{$template}.php";
-        $html = ob_get_clean();
-
-        $response->getBody()->write($html);
-        return $response->withStatus(403);
-    }
-
     private function renderNotFound(Response $response)
     {
         $response->getBody()->write('Survey not found');
         return $response->withStatus(404);
     }
-
-    private function jsonResponse(Response $response, $data, $statusCode = 200)
-    {
-        $response->getBody()->write(json_encode($data));
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus($statusCode);
-    }
+}
 }

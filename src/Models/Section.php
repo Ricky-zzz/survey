@@ -75,7 +75,7 @@ class Section
         
         $questionModel = new Question($this->db);
         foreach ($sections as &$section) {
-            $section['questions'] = $questionModel->getBySection($section['id']);
+            $section['questions'] = $questionModel->getBySectionWithOptions($section['id']);
         }
 
         return $sections;
