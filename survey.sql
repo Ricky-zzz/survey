@@ -72,6 +72,7 @@ CREATE TABLE `sections` (
 -- type: text | yesno | scale | multiple_choice | file_upload
 -- required: true = respondent must answer
 -- allow_multiple_files: true = can upload multiple files (only for file_upload type)
+-- matrix_group_id: optional identifier to group scale questions into a matrix table
 -- ========================================
 CREATE TABLE `questions` (
   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -80,10 +81,12 @@ CREATE TABLE `questions` (
   `type` enum('text', 'yesno', 'scale', 'multiple_choice', 'file_upload') NOT NULL,
   `required` boolean DEFAULT true,
   `allow_multiple_files` boolean DEFAULT false,
+  `matrix_group_id` varchar(100) DEFAULT NULL,
   `order_sequence` int NOT NULL DEFAULT 0,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (`section_id`) REFERENCES `sections`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`section_id`) REFERENCES `sections`(`id`) ON DELETE CASCADE,
+  INDEX `idx_matrix_group` (`matrix_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ========================================
@@ -186,7 +189,8 @@ INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_se
 
 -- Create survey questions section
 INSERT INTO `sections` (`survey_id`, `title`, `description`, `is_respondent_info`, `order_sequence`) VALUES 
-(1, 'Service Feedback', 'Tell us about your experience', false, 1);
+(1, 'Service Feedback', 'Tell us about your experience', false, 1),
+(1, 'Service Quality Matrix', 'Rate the following aspects of our service', false, 2);
 
 -- Add survey questions (text, yesno, scale, multiple_choice, file_upload)
 INSERT INTO `questions` (`section_id`, `question_text`, `type`, `required`, `order_sequence`) VALUES 
@@ -194,15 +198,51 @@ INSERT INTO `questions` (`section_id`, `question_text`, `type`, `required`, `ord
 (2, 'Would you recommend us to others?', 'yesno', true, 2),
 (2, 'What is your primary feedback?', 'text', false, 3),
 (2, 'Which department helped you most?', 'multiple_choice', true, 4),
-(2, 'Please upload your feedback document (PDF only)', 'file_upload', false, 5);
+(2, 'Please upload your feedback document (PDF only)', 'file_upload', false, 5),
+(3, 'Product Quality', 'scale', true, 1),
+(3, 'Customer Service', 'scale', true, 2),
+(3, 'Communication', 'scale', true, 3),
+(3, 'Price Value', 'scale', true, 4),
+(3, 'Timeliness of Delivery', 'scale', true, 5);
 
--- Add scale options for satisfaction question
+-- Update matrix questions with group ID
+UPDATE `questions` SET `matrix_group_id` = 'service-quality' WHERE `id` IN (13, 14, 15, 16, 17);
+
+-- Add scale options for single satisfaction question
 INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_sequence`) VALUES 
 (7, 'Very Unsatisfied', '1', 1),
 (7, 'Unsatisfied', '2', 2),
 (7, 'Neutral', '3', 3),
 (7, 'Satisfied', '4', 4),
 (7, 'Very Satisfied', '5', 5);
+
+-- Add scale options for matrix questions (13-17: Product Quality, Customer Service, Communication, Price Value, Timeliness)
+INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_sequence`) VALUES 
+(13, 'Strongly Disagree', '1', 1),
+(13, 'Disagree', '2', 2),
+(13, 'Neutral', '3', 3),
+(13, 'Agree', '4', 4),
+(13, 'Strongly Agree', '5', 5),
+(14, 'Strongly Disagree', '1', 1),
+(14, 'Disagree', '2', 2),
+(14, 'Neutral', '3', 3),
+(14, 'Agree', '4', 4),
+(14, 'Strongly Agree', '5', 5),
+(15, 'Strongly Disagree', '1', 1),
+(15, 'Disagree', '2', 2),
+(15, 'Neutral', '3', 3),
+(15, 'Agree', '4', 4),
+(15, 'Strongly Agree', '5', 5),
+(16, 'Strongly Disagree', '1', 1),
+(16, 'Disagree', '2', 2),
+(16, 'Neutral', '3', 3),
+(16, 'Agree', '4', 4),
+(16, 'Strongly Agree', '5', 5),
+(17, 'Strongly Disagree', '1', 1),
+(17, 'Disagree', '2', 2),
+(17, 'Neutral', '3', 3),
+(17, 'Agree', '4', 4),
+(17, 'Strongly Agree', '5', 5);
 
 -- Add department options for multiple choice question
 INSERT INTO `question_options` (`question_id`, `option_text`, `value`, `order_sequence`) VALUES 

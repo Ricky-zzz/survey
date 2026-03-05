@@ -39,7 +39,7 @@ class RespondentController
     public function takeSurvey(Request $request, Response $response, $args)
     {
         $surveyId = $args['id'];
-        $survey = $this->surveyModel->getById($surveyId);
+        $survey = $this->surveyModel->getWithSections($surveyId);
 
         if (!$survey) {
             return $this->renderNotFound($response);
