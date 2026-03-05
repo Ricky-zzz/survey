@@ -22,7 +22,7 @@
                         <a href="/surveys/<?php echo $survey['id']; ?>/take" class="group block">
                             <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 h-full flex flex-col">
                                 <h3 class="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
-                                    <?php echo htmlspecialchars($survey['title']); ?>
+                                    <?php echo htmlspecialchars($survey['name']); ?>
                                 </h3>
                                 <p class="text-gray-600 text-sm flex-1">
                                     <?php echo htmlspecialchars($survey['description'] ?? ''); ?>

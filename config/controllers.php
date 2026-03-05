@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\AdminController;
 use App\Controllers\SurveyController;
 use App\Controllers\SectionController;
 use App\Controllers\QuestionController;
@@ -8,6 +9,13 @@ use App\Controllers\ResponseController;
 use App\Services\FileUploader;
 
 /** @var \DI\Container $container */
+
+// Admin authentication controller
+$container->set('AdminController', function ($c) {
+    return new AdminController(
+        $c->get('AdminModel')
+    );
+});
 
 // Survey management controller
 $container->set('SurveyController', function ($c) {

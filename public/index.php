@@ -1,5 +1,10 @@
 <?php
 
+// Start session for admin authentication
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use DI\Container;

@@ -66,7 +66,7 @@ class ResponseController
                 }
             }
 
-            return $this->render($response, 'admin/surveys/results', [
+            return $this->render($response, 'admin/results', [
                 'survey' => $survey,
                 'stats' => $stats,
                 'respondents' => $respondents,
@@ -101,7 +101,7 @@ class ResponseController
             $total = $this->respondentModel->getSubmittedCount($surveyId);
             $totalPages = ceil($total / $limit);
 
-            return $this->render($response, 'admin/surveys/respondents', [
+            return $this->render($response, 'admin/respondents', [
                 'survey' => $survey,
                 'respondents' => $respondents,
                 'currentPage' => $page,
@@ -132,7 +132,7 @@ class ResponseController
             // Format responses by section for easier display
             $responsesBySection = $this->groupResponsesBySection($respondent['responses'], $survey);
 
-            return $this->render($response, 'admin/respondents/view', [
+            return $this->render($response, 'admin/respondent-detail', [
                 'respondent' => $respondent,
                 'survey' => $survey,
                 'responsesBySection' => $responsesBySection,

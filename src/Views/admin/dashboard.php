@@ -67,7 +67,7 @@
             <template x-for="survey in filteredSurveys" :key="survey.id">
                 <div class="bg-white rounded-lg shadow p-6 flex justify-between items-center hover:shadow-lg transition">
                     <div class="flex-1">
-                        <h4 class="text-lg font-semibold text-gray-900" x-text="survey.title"></h4>
+                        <h4 class="text-lg font-semibold text-gray-900" x-text="survey.name"></h4>
                         <p class="text-gray-600 text-sm mt-1" x-text="survey.description || ''"></p>
                         <div class="mt-2 flex gap-4 text-xs text-gray-500">
                             <span x-text="survey.is_public ? '🌍 Public' : '🔒 Private'"></span>

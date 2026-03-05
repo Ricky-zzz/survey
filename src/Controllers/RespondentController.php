@@ -46,30 +46,23 @@ class RespondentController
         }
 
         // Check if survey is private and validate passkey
+        $showPasskeyForm = false;
         if (!$survey['is_public']) {
-            $passkey = $request->getQueryParams()['passkey'] ?? null;
+            $passkey = $request->getParsedBody()['passkey'] ?? null;
             
             if (!$this->surveyModel->verifyPasskey($surveyId, $passkey)) {
-                return $this->renderWithError($response, 'surveys/passkey', [
-                    'surveyId' => $surveyId,
-                    'error' => 'Invalid or missing passkey'
-                ]);
+                $showPasskeyForm = true;
             }
         }
 
-        // Convert survey data to JSON for Alpine.js
-        $surveyData = [
-            'survey' => [
-                'id' => $survey['id'],
-                'name' => $survey['name'],
-                'description' => $survey['description']
-            ],
-            'sections' => array_map(fn($section) => $this->formatSectionForForm($section), $survey['sections'])
-        ];
+        // Get sections with questions
+        $sections = $survey['sections'] ?? [];
 
-        return $this->render($response, 'surveys/take', [
+        return $this->render($response, 'respondent/survey', [
             'survey' => $survey,
-            'surveyData' => json_encode($surveyData)
+            'sections' => $sections,
+            'showPasskeyForm' => $showPasskeyForm,
+            'error' => $showPasskeyForm && isset($request->getParsedBody()['passkey']) ? 'Invalid passkey' : null
         ]);
     }
 
@@ -136,7 +129,7 @@ class RespondentController
             return $this->renderNotFound($response);
         }
 
-        return $this->render($response, 'surveys/thank-you', [
+        return $this->render($response, 'respondent/thank-you', [
             'survey' => $survey
         ]);
     }

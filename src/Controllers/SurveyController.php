@@ -29,7 +29,7 @@ class SurveyController
     {
         $surveys = $this->surveyModel->getAll();
         
-        return $this->render($response, 'admin/surveys/index', [
+        return $this->render($response, 'admin/dashboard', [
             'surveys' => $surveys
         ]);
     }
@@ -40,7 +40,9 @@ class SurveyController
      */
     public function createForm(Request $request, Response $response)
     {
-        return $this->render($response, 'admin/surveys/create');
+        return $this->render($response, 'admin/survey-form', [
+            'sections' => []
+        ]);
     }
 
     /**
@@ -53,7 +55,7 @@ class SurveyController
         
         // Validate required fields
         if (!isset($data['name']) || empty($data['name'])) {
-            return $this->renderWithError($response, 'admin/surveys/create', 'Survey name is required');
+            return $this->renderWithError($response, 'admin/survey-form', 'Survey name is required');
         }
 
         try {
@@ -80,10 +82,10 @@ class SurveyController
             ]);
 
             return $response
-                ->withHeader('Location', "/admin/surveys/{$surveyId}")
+                ->withHeader('Location', "/admin/surveys/{$surveyId}/edit")
                 ->withStatus(302);
         } catch (\Exception $e) {
-            return $this->renderWithError($response, 'admin/surveys/create', $e->getMessage());
+            return $this->renderWithError($response, 'admin/survey-form', $e->getMessage());
         }
     }
 
@@ -102,10 +104,10 @@ class SurveyController
 
         $responseCount = $this->surveyModel->getResponseCount($surveyId);
 
-        return $this->render($response, 'admin/surveys/show', [
-            'survey' => $survey,
-            'responseCount' => $responseCount
-        ]);
+        // Redirect to edit form for survey details
+        return $response
+            ->withHeader('Location', "/admin/surveys/{$surveyId}/edit")
+            ->withStatus(302);
     }
 
     /**
@@ -121,8 +123,11 @@ class SurveyController
             return $this->renderNotFound($response);
         }
 
-        return $this->render($response, 'admin/surveys/edit', [
-            'survey' => $survey
+        $sections = $this->sectionModel->getBySurveyWithQuestions($surveyId);
+
+        return $this->render($response, 'admin/survey-form', [
+            'survey' => $survey,
+            'sections' => $sections
         ]);
     }
 
@@ -160,7 +165,7 @@ class SurveyController
                 ->withHeader('Location', "/admin/surveys/{$surveyId}")
                 ->withStatus(302);
         } catch (\Exception $e) {
-            return $this->renderWithError($response, 'admin/surveys/edit', $e->getMessage());
+            return $this->renderWithError($response, 'admin/survey-form', $e->getMessage());
         }
     }
 
@@ -184,7 +189,7 @@ class SurveyController
                 ->withHeader('Location', '/admin/surveys')
                 ->withStatus(302);
         } catch (\Exception $e) {
-            return $this->renderWithError($response, 'admin/surveys/show', $e->getMessage());
+            return $this->renderWithError($response, 'admin/survey-form', $e->getMessage());
         }
     }
 
@@ -196,7 +201,7 @@ class SurveyController
     {
         $surveys = $this->surveyModel->getAllPublic();
 
-        return $this->render($response, 'surveys/index', [
+        return $this->render($response, 'public/index', [
             'surveys' => $surveys
         ]);
     }
@@ -216,6 +221,7 @@ class SurveyController
     private function renderWithError(Response $response, $template, $error)
     {
         ob_start();
+        extract(['error' => $error]);
         include __DIR__ . "/../Views/{$template}.php";
         $html = ob_get_clean();
 

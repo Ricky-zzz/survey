@@ -4,7 +4,7 @@
     <!-- Header -->
     <header class="bg-white border-b border-gray-200 shadow-sm">
         <div class="max-w-2xl mx-auto px-8 py-6">
-            <h1 class="text-3xl font-bold text-gray-900"><?php echo htmlspecialchars($survey['title']); ?></h1>
+            <h1 class="text-3xl font-bold text-gray-900"><?php echo htmlspecialchars($survey['name']); ?></h1>
             <?php if (!empty($survey['description'])): ?>
                 <p class="text-gray-600 mt-2"><?php echo htmlspecialchars($survey['description']); ?></p>
             <?php endif; ?>

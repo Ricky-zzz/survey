@@ -5,7 +5,7 @@
     <!-- Results Header -->
     <div class="mb-8 flex justify-between items-start">
         <div>
-            <h3 class="text-lg font-semibold text-gray-900"><?php echo htmlspecialchars($survey['title']); ?></h3>
+            <h3 class="text-lg font-semibold text-gray-900"><?php echo htmlspecialchars($survey['name']); ?></h3>
             <p class="text-gray-600 text-sm mt-1"><?php echo $responseCount ?? 0; ?> responses</p>
         </div>
         <div class="flex gap-2">

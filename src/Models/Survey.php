@@ -68,7 +68,7 @@ class Survey
         }
 
         $sectionModel = new Section($this->db);
-        $survey['sections'] = $sectionModel->getBySurvey($surveyId);
+        $survey['sections'] = $sectionModel->getBySurveyWithQuestions($surveyId);
 
         return $survey;
     }
